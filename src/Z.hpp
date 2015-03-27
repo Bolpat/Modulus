@@ -56,6 +56,13 @@ private:
     /// Stores the value. The class is designed to keep 0 <= x < p.
     unsigned x;
 
+    /// Reduces the signed value modulo p. However, this cannot be inlined in code by the constructor.
+    constexpr static
+    unsigned reduce(signed n) noexcept
+    {
+        return (n %= static_cast<signed>(p)) < 0  ?  p + n  :  n;
+    }
+    
     /// Returns the multimlicative inverse of the Z object.
     /// Those inverses don't exist for zero divisors; those will be mapped to zero.
     friend constexpr
@@ -63,7 +70,7 @@ private:
     {
         long inverse = 0, dummy = 0;
         if (1 != ext_euclid(z.x, p, inverse, dummy)) return Z(0);
-        return Z(static_cast<unsigned>(inverse));
+        return Z(static_cast<signed int>(inverse));
     }
 
     /// Fast unsafe constructor (with blind parameter).
@@ -73,7 +80,7 @@ private:
 
 public:
             constexpr   Z(unsigned n = 0u) : x(n % p) {  }
-            constexpr   Z(  signed n     ) : x((n %= p) < 0 ? p + n : n) {  }
+            constexpr   Z(  signed n     ) : x(reduce(n)) {  }
 
     friend  constexpr   bool operator ==(Z z1, Z z2) { return z1.x == z2.x; }
     friend  constexpr   bool operator < (Z z1, Z z2) { return z1.x <  z2.x; }
@@ -83,7 +90,7 @@ public:
             constexpr   Z    operator - () const { return Z(p - x, true); }
 
     friend  constexpr    Z    operator + (Z z1, Z z2) { return Z(z1.x + z2.x); }
-    friend  constexpr    Z    operator - (Z z1, Z z2) { return Z(z1.x - z2.x); }
+    friend  constexpr    Z    operator - (Z z1, Z z2) { return z1 + (-z2); }
     friend  constexpr    Z    operator * (Z z1, Z z2) { return Z(z1.x * z2.x); }
     friend  constexpr    Z    operator / (Z z1, Z z2) { return z1 * inv(z2); }
 
