@@ -30,6 +30,7 @@ namespace Modulus
 // The extended Euclidean algorithm.
 // for r  :=  ext_euclid(a, b, u, v) holds:
 //    r  =  ggt(a, b);  r  =  a * u  +  b * v;
+constexpr
 long ext_euclid(long a, long b, long & u, long & v) noexcept
 {
     int s = 0, t = 1;
@@ -38,9 +39,9 @@ long ext_euclid(long a, long b, long & u, long & v) noexcept
     while (b > 0)
     {
         int q = a / b,
-            r = a % b; a = b; b = r;
-        r = u - q * s; u = s; s = r;
-        r = v - q * t; v = t; t = r;
+            r = a % b;  a = b;  b = r;
+        r = u - q * s;  u = s;  s = r;
+        r = v - q * t;  v = t;  t = r;
     }
     return a;
 }
