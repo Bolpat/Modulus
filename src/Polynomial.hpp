@@ -61,12 +61,13 @@ private:
     std::map<deg_type, T> coeffs;
     
 public:
-    Polynomial() { }
-    Polynomial(T const &, deg_type deg = 0);
-    static  Polynomial fromCoeffVector(std::vector<T> const & coeffs);
+                            Polynomial() { }
+    explicit                Polynomial(T const &, deg_type deg = 0);
     
-    friend  deg_type     deg<>(Polynomial const &);
-            Polynomial & with_monic(deg_type dg = 0) &;
+    static  Polynomial      fromCoeffVector(std::vector<T> const & coeffs);
+    
+    friend  deg_type        deg<>(Polynomial const &);
+            Polynomial &    with_monic(deg_type dg = 0) &;
     
     friend  bool operator == (Polynomial const & p, Polynomial const & q) { return p.coeffs == q.coeffs; }
     friend  bool operator != (Polynomial const & p, Polynomial const & q) { return p.coeffs != q.coeffs; }
@@ -87,11 +88,13 @@ public:
     friend  Polynomial      operator *      (Polynomial         p,   T          const & t) { return p *= t; }
     
     // Auch wenn es nicht nötig ist, warum funtioniert er nicht??
-  //friend  Polynomial      operator + <>   (Polynomial const & p,   Polynomial const & q);
+    friend  Polynomial      operator + <>   (Polynomial const & p,   Polynomial const & q);
     friend  Polynomial      operator * <>   (Polynomial const & p,   Polynomial const & q);
     friend  Polynomial      operator -      (Polynomial const & p,   Polynomial const & q) { return p + (-q); }
     friend  Polynomial      operator /      (Polynomial const & p,   Polynomial const & q) { return divmod(p, q).first; }
     friend  Polynomial      operator %      (Polynomial const & p,   Polynomial const & q) { return divmod(p, q).second; }
+    
+            Polynomial &    operator *=     (T          const & t) &;
     
             Polynomial &    operator +=     (Polynomial const & q) &;
             Polynomial &    operator -=     (Polynomial const & q) & { return *this += (-q); }
@@ -103,8 +106,7 @@ public:
             T               at              (deg_type)      &&;
     
     friend  std::ostream &  operator << <>  (std::ostream &, Polynomial const &);
-    // operator >> erzeugt einen analogen Fehler.
-  //friend  std::istream &  operator >> <>  (std::istream &, Polynomial       &);
+    friend  std::istream &  operator >> <>  (std::istream &, Polynomial       &);
     
             size_t       hash() const noexcept;
 };

@@ -119,6 +119,14 @@ Polynomial<T, deg_type>
 
 template <typename T, typename deg_type>
 Polynomial<T, deg_type> &
+Polynomial<T, deg_type>::operator *=(T const & t) &
+{
+    for (auto & coeff : coeffs) coeff.second *= t;
+    return *this;
+}
+
+template <typename T, typename deg_type>
+Polynomial<T, deg_type> &
 Polynomial<T, deg_type>::operator +=(Polynomial<T, deg_type> const & q) &
 {
     for (auto & dcp : q.coeffs) if ((coeffs[dcp.first] += dcp.second) == T()) coeffs.erase(dcp.first);
@@ -197,7 +205,7 @@ std::string monom_string(std::pair<deg_type, T> const & m)
 }
 
 // IO streams //
-
+/*
 template <typename T, typename deg_type>
 std::ostream &
     operator <<(std::ostream & o, Polynomial<T, deg_type> const & p)
@@ -312,7 +320,7 @@ std::istream &
     }
     return i;
 }
-
+*/
 // Hash //
 
 template <typename T, typename deg_type>
