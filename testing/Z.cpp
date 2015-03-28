@@ -1,3 +1,5 @@
+// Compile with clang++-3.5 -std=c++14 -o "../bin/Z_test" Z.cpp
+
 /* This file is part of Modulus.
  * 
  * Modulus is free software; you can redistribute it and/or modify
@@ -47,7 +49,7 @@ int main()
     cout << "After setting f  :=  f / g, now f  =  " << (f /= g) << endl;
     
     cout << endl;
-        
+    
     //~ Z<2> a, b, c;
     //~ cout <<  "Three Values (a, b, c) of Z/2Z:" << endl;
     //~ cin >> a >> b >> c;
