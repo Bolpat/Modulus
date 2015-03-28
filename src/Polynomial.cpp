@@ -343,7 +343,7 @@ size_t Polynomial<T, deg_type>::hash() const noexcept
 
 } // namespace Modulus
 
-/*
+
 
 // Polynomial<Z2> //
 namespace Modulus
@@ -352,19 +352,19 @@ namespace Modulus
 // Constructors //
 
 template <typename deg_type>
-Polynomial<Z<2>, deg_type>::Polynomial(K const & z, deg_type deg)
-    : coeffs(z == K(0) ? 0 : deg + 1)
+ZPoly<2, deg_type>::Polynomial(Z<2> const & z, deg_type deg)
+    : coeffs(z == Z<2>() ? 0 : deg + 1)
 {
     if (not coeffs.empty()) coeffs[deg] = true;
 }
 
 template <typename deg_type>
-Polynomial<Z<2>, deg_type>
-Polynomial<Z<2>, deg_type>::fromCoeffVector(std::vector<Z<2>> const & coeffs)
+ZPoly<2, deg_type>
+ZPoly<2, deg_type>::fromCoeffVector(std::vector<Z<2>> const & coeffs)
 {
-    Polynomial<Z<2>, deg_type>  res;
+    ZPoly<2, deg_type>  res;
     res.coeffs.reserve(coeffs.size());
-    for (K z : coeffs) res.coeffs.push_back(z != K(0));
+    for (Z<2> z : coeffs) res.coeffs.push_back(z != Z<2>());
     while (not res.coeffs.empty() and not res.coeffs.back()) res.coeffs.pop_back();
     return res;
 }
@@ -372,8 +372,8 @@ Polynomial<Z<2>, deg_type>::fromCoeffVector(std::vector<Z<2>> const & coeffs)
 // Methods //
 
 template <typename deg_type>
-Polynomial<Z<2>, deg_type> &
-Polynomial<Z<2>, deg_type>::with_monic(deg_type dg) &
+ZPoly<2, deg_type> &
+ZPoly<2, deg_type>::with_monic(deg_type dg) &
 {
     if (dg < coeffs.size()) { coeffs.push_back(true); }
     else                    { coeffs.resize(dg+1); coeffs[dg] = true; }
@@ -383,28 +383,30 @@ Polynomial<Z<2>, deg_type>::with_monic(deg_type dg) &
 // Shift //
 
 template <typename deg_type>
-Polynomial<Z<2>, deg_type>
-Polynomial<Z<2>, deg_type>::operator <<(deg_type d)
+ZPoly<2, deg_type>
+    operator <<(ZPoly<2, deg_type> p, deg_type d)
 {
-    coeffs.resize(coeffs.size() + d);
-    for (deg_type k = coeffs.size() - 1; k >= d; ++k) coeffs[k] = coeffs[k-d];
-    for (deg_type k = 0; k < d; ++k) coeffs[k] = false;
+    p.coeffs.resize(p.coeffs.size() + d);
+    for (deg_type k = p.coeffs.size() - 1; k >= d; ++k) p.coeffs[k] = p.coeffs[k-d];
+    for (deg_type k = 0; k < d; ++k) p.coeffs[k] = false;
+    return p;
 }
 
 template <typename deg_type>
-Polynomial<Z<2>, deg_type>
-Polynomial<Z<2>, deg_type>::operator >>(deg_type d)
+ZPoly<2, deg_type>
+    operator >>(ZPoly<2, deg_type> p, deg_type d)
 {
     deg_type k;
-    for (k = 0; d < coeffs.size(); ++k, ++d) coeffs[k] = std::move(coeffs[d]);
-    coeffs.resize(k);
+    for (k = 0; d < p.coeffs.size(); ++k, ++d) p.coeffs[k] = std::move(p.coeffs[d]);
+    p.coeffs.resize(k);
+    return p;
 }
 
 // Arithmetric //
 
 template <typename deg_type>
-Polynomial<Z<2>, deg_type> &
-Polynomial<Z<2>, deg_type>::add_with_offset(Polynomial<Z<2>, deg_type> const & p, size_t offset)
+ZPoly<2, deg_type> &
+ZPoly<2, deg_type>::add_with_offset(ZPoly<2, deg_type> const & p, size_t offset)
 {
     std::vector<bool>       & v =   coeffs;
     std::vector<bool> const & w = p.coeffs;
@@ -417,47 +419,66 @@ Polynomial<Z<2>, deg_type>::add_with_offset(Polynomial<Z<2>, deg_type> const & p
 }
 
 template <typename deg_type>
-Polynomial<Z<2>, deg_type>
-    operator * (Polynomial<Z<2>, deg_type> const & p, Polynomial<Z<2>, deg_type> const & q)
+ZPoly<2, deg_type>
+    operator * (ZPoly<2, deg_type> const & p, ZPoly<2, deg_type> const & q)
 {
-    Polynomial<Z<2>, deg_type>  res;
+    ZPoly<2, deg_type>  res;
     res.coeffs.reserve(p.coeffs.size() + q.coeffs.size());
     for (size_t i = 0; i < p.coeffs.size(); ++i) if (p.coeffs[i]) res.add_with_offset(q, i);
     return res;
 }
 
 template <typename deg_type>
-std::pair<Polynomial<Z<2>, deg_type>, Polynomial<Z<2>, deg_type>>
-    Polynomial<Z<2>, deg_type>::divmod(Polynomial<Z<2>, deg_type>         a,
-                                       Polynomial<Z<2>, deg_type> const & b)
+std::pair<ZPoly<2, deg_type>, ZPoly<2, deg_type>>
+ZPoly<2, deg_type>::divmod(ZPoly<2, deg_type> a, ZPoly<2, deg_type> const & b)
 {
+    using namespace std;
+    cout << "Enter divmod(a, b) -> (q, r)" << endl;
     // a is a copy, b is a reference!
     std::vector<bool> q;
     while (a.coeffs.size() >= b.coeffs.size())
     {
+        cout << "divmod(a, b) -> (q, r): begin outer loop" << endl;
         q.push_back(a.coeffs.back());
         if (a.coeffs.back())
         {
+            cout << "divmod(a, b) -> (q, r): begin if" << endl;
             auto itv = a.coeffs.rbegin(); // iterator
             auto itw = b.coeffs.rbegin(); // const_iterator
-            do { *itv = (*itv != *itw); } while (++itv, ++itw != b.coeffs.rend());
+            do { *itv = (*itv != *itw); ++itv; cout << "divmod(a, b) -> (q, r): copying" << endl; } while (++itw != b.coeffs.rend());
         }
+        cout << "divmod(a, b) -> (q, r): after if" << endl;
         a.coeffs.pop_back();
     }
+    cout << "divmod(a, b) -> (q, r): after loop" << endl;
     std::reverse(q.begin(), q.end());
-    return make_pair( Polynomial<Z<2>, deg_type>::fromCoeffVector(q), std::move(a) );
+    cout << "divmod(a, b) -> (q, r): returning result" << endl;
+    return std::make_pair( ZPoly<2, deg_type>(std::move(q)), std::move(a) );
+}
+
+template <typename deg_type> inline
+void ZPoly<2, deg_type>::divmod(ZPoly<2, deg_type> const & a, ZPoly<2, deg_type> const & b, ZPoly<2, deg_type> & q, ZPoly<2, deg_type> & r)
+{
+    using namespace std;
+    cout << "Enter divmod(a, b, q, r)." << endl;
+    auto qr_pair = divmod(a, b);
+    cout << "divmod(a, b, q, r): got result." << endl;
+    q = std::move(qr_pair.first);
+    r = std::move(qr_pair.second);
+    cout << "divmod(a, b, q, r): wrote result." << endl;
 }
 
 // IO streams //
 
 template <typename deg_type>
-std::ostream & operator <<(std::ostream & os, Polynomial<Z<2>, deg_type> const & p)
+std::ostream & operator <<(std::ostream & os, ZPoly<2, deg_type> const & p)
 {
     auto & v = p.coeffs;
     switch (v.size())
     {
-        case 0: os << '1'; break;
-        case 1: os << "x"; if (v[0]) os << " + 1"; break;
+        case 0: os << '0'; break;
+        case 1: os << '1'; break;
+        case 2: os << "x"; if (v[0]) os << " + 1"; break;
         default:
             size_t i = v.size() - 1;
             os << "x^" << i;
@@ -469,27 +490,32 @@ std::ostream & operator <<(std::ostream & os, Polynomial<Z<2>, deg_type> const &
 }
 
 template <typename deg_type>
-std::istream & operator >>(std::istream & is, Polynomial<Z<2>, deg_type>       & p)
+std::istream & operator >>(std::istream & is, ZPoly<2, deg_type>       & p)
 {
     using std::istringstream;
     using K = Z<2>;
+    using KPoly = ZPoly<2, deg_type>;
     
-    p = K(0);
+    p = K();
     std::string inp;
     if (!(is >> inp)) return is;
     for (auto & c : inp) if (c == '+' or c == '-') c = ' ';
 
     istringstream iss(inp);
+    
+    // reuse inp!
     while(iss >> inp)
     {
-        if      (inp == "1") p += K(1);
-        else if (inp == "x") p += Polynomial<K, deg_type>(K(1), 1);
+        istringstream iss_inp(inp);
+        unsigned u;
+        if      (iss_inp >> u) p += K(u);
+        else if (inp == "x")   p += KPoly(K(1), 1);
         else
         {
             inp[0] = inp[1] = ' '; // delete "x^".
             deg_type d;
             istringstream iss_inp(inp);
-            if (iss_inp >> d) p += Polynomial<K, deg_type>(K(1), d);
+            if (iss_inp >> d) p += KPoly(K(1), d);
             else is.setstate(std::ios_base::failbit);
         }
     }
@@ -498,4 +524,3 @@ std::istream & operator >>(std::istream & is, Polynomial<Z<2>, deg_type>       &
 
 } // namespace Modulus
 
-*/

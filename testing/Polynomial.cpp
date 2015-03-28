@@ -26,14 +26,30 @@ using namespace std;
 
 int main()
 {
-    Polynomial<int> p;
-    p + p; // Geht, aber nur weil friend nicht notwendig ist.
-    p * p;
-    p >>= 1;
-    cout << deg(p) << endl;
+    constexpr unsigned p = 3;
+    using Modulus::Eks::X;
+    using KPoly = ZPoly<p>;
     
-    cin >> p;
-    cout << p << endl;
+    cout << "Testing (Z/" << p << "Z)[x] class." << endl;
+    cout << "Type in two polynomials P and S." << endl;
+    if (p == 2) cout << "You cannot use coefficients, except 0 and 1 for constant polynomials! Just x^2 and not 1x^2." << endl;
+    
+    KPoly P, S;
+    if (cin >> P >> S) { } else { cout << "Error in input." << endl; return 0; }
+    
+    cout << boolalpha;
+    
+    cout << "deg(P)  =  " << deg(P) << endl;
+    cout << "deg(S)  =  " << deg(S) << endl;
+    
+    cout << "P == S ?  ->  " << (P == S ? "yes" : "no") << endl;
+    cout << "P != S ?  ->  " << (P != S ? "yes" : "no") << endl;
+    
+    cout << "P + S  =  " << P + S << endl;
+    cout << "P - S  =  " << P - S << endl;
+    cout << "P * S  =  " << P * S << endl;
+    KPoly Q, R; KPoly::divmod(P, R, Q, R);
+    cout << "let Q, R be given by P  =  Q*S + R, with deg(R) < deg(S), then Q  =  " << Q << " and R  =  " << R << endl;
     
     return 0;
 }
