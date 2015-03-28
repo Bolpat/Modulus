@@ -38,11 +38,13 @@ namespace Modulus
 
 template <typename T, typename deg_type = size_t>   class Polynomial;
 
-template <typename T, typename deg_type>   deg_type                 deg         (Polynomial<T, deg_type> const &);
-template <typename T, typename deg_type>   Polynomial<T, deg_type>  operator +  (Polynomial<T, deg_type> const & p,  Polynomial<T, deg_type> const & q);
-template <typename T, typename deg_type>   Polynomial<T, deg_type>  operator *  (Polynomial<T, deg_type> const & p,  Polynomial<T, deg_type> const & q);
-template <typename T, typename deg_type>   std::ostream &           operator << (std::ostream &,                     Polynomial<T, deg_type> const &);
-template <typename T, typename deg_type>   std::istream &           operator >> (std::istream &,                     Polynomial<T, deg_type>       &);
+template <typename T, typename deg_type>    deg_type                deg         (Polynomial<T, deg_type> const &);
+template <typename T, typename deg_type>    Polynomial<T, deg_type> operator << (Polynomial<T, deg_type> const &,  deg_type);
+template <typename T, typename deg_type>    Polynomial<T, deg_type> operator >> (Polynomial<T, deg_type> const &,  deg_type);
+template <typename T, typename deg_type>    Polynomial<T, deg_type> operator +  (Polynomial<T, deg_type> const &,  Polynomial<T, deg_type> const &);
+template <typename T, typename deg_type>    Polynomial<T, deg_type> operator *  (Polynomial<T, deg_type> const &,  Polynomial<T, deg_type> const &);
+template <typename T, typename deg_type>    std::ostream &          operator << (std::ostream &,                   Polynomial<T, deg_type> const &);
+template <typename T, typename deg_type>    std::istream &          operator >> (std::istream &,                   Polynomial<T, deg_type>       &);
 
 }
 
@@ -61,8 +63,8 @@ private:
     std::map<deg_type, T> coeffs;
     
 public:
-                            Polynomial() { }
-    explicit                Polynomial(T const &, deg_type deg = 0);
+    Polynomial() { }
+    Polynomial(T const &, deg_type deg = 0);
     
     static  Polynomial      fromCoeffVector(std::vector<T> const & coeffs);
     
@@ -73,15 +75,16 @@ public:
     friend  bool operator != (Polynomial const & p, Polynomial const & q) { return p.coeffs != q.coeffs; }
     friend  bool operator <  (Polynomial const & p, Polynomial const & q) { return p.coeffs <  q.coeffs; }
     
-            Polynomial      operator <<(deg_type d) const;
-            Polynomial      operator >>(deg_type d) const;
-            Polynomial &    operator<<=(deg_type d) & { return *this = *this << d; }
-            Polynomial &    operator>>=(deg_type d) & { return *this = *this >> d; }
+    friend  Polynomial      operator << <>  (Polynomial const & p,  deg_type d);
+    friend  Polynomial      operator >> <>  (Polynomial const & p,  deg_type d);
+            Polynomial &    operator<<=     (                       deg_type d) & { return *this = *this << d; }
+            Polynomial &    operator>>=     (                       deg_type d) & { return *this = *this >> d; }
     
     static  std::pair<Polynomial, Polynomial> divmod(Polynomial         a, Polynomial const & b);
     static  void                              divmod(Polynomial const & a, Polynomial const & b, Polynomial & q, Polynomial & r);
     
-            Polynomial      operator +      () const { return *this; }
+    // Must be friend, see http://stackoverflow.com/q/29318021/3273130?sem=2
+    friend  Polynomial      operator +      (Polynomial p) { return p; }
             Polynomial      operator -      () const;
     
     friend  Polynomial      operator *      (T          const & t,   Polynomial         q) { return q *= t; }
@@ -220,4 +223,4 @@ struct hash<Modulus::Polynomial<T, deg_type>>
 
 
 // As polynomial is a temlate class, it is necessary to include the cpp-file as well.
-#include "Polynomial_defs.hpp"
+#include "Polynomial.cpp"

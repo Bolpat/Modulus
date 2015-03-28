@@ -29,7 +29,7 @@ namespace Modulus
 
 // Constructors //
 
-template <typename T, typename deg_type>
+template <typename T, typename deg_type> inline
 Polynomial<T, deg_type>::Polynomial(T const & t, deg_type deg)
 {
     if (t != T()) coeffs[deg] = t;
@@ -49,7 +49,7 @@ Polynomial<T, deg_type>::fromCoeffVector(std::vector<T> const & coeffs)
 
 // Methods //
 
-template <typename T, typename deg_type>
+template <typename T, typename deg_type> inline
 deg_type deg(Polynomial<T, deg_type> const & p)
 {
     if (p.coeffs.empty()) return 0;
@@ -70,19 +70,19 @@ Polynomial<T, deg_type>::with_monic(deg_type dg) &
 
 template <typename T, typename deg_type>
 Polynomial<T, deg_type>
-Polynomial<T, deg_type>::operator <<(deg_type n) const
+    operator <<(Polynomial<T, deg_type> const & p, deg_type n)
 {
     Polynomial<T, deg_type> res;
-    for (auto & dcp : coeffs) res.coeffs[dcp.first + n] = dcp.second;
+    for (auto & dcp : p.coeffs) res.coeffs[dcp.first + n] = dcp.second;
     return res;
 }
 
 template <typename T, typename deg_type>
 Polynomial<T, deg_type>
-Polynomial<T, deg_type>::operator >>(deg_type n) const
+    operator >>(Polynomial<T, deg_type> const & p, deg_type n)
 {
     Polynomial<T, deg_type> res;
-    for (auto & dcp : coeffs) if (dcp.first >= n) res.coeffs[dcp.first - n] = dcp.second;
+    for (auto & dcp : p.coeffs) if (dcp.first >= n) res.coeffs[dcp.first - n] = dcp.second;
     return res;
 }
 
@@ -205,7 +205,7 @@ std::string monom_string(std::pair<deg_type, T> const & m)
 }
 
 // IO streams //
-/*
+
 template <typename T, typename deg_type>
 std::ostream &
     operator <<(std::ostream & o, Polynomial<T, deg_type> const & p)
@@ -320,22 +320,22 @@ std::istream &
     }
     return i;
 }
-*/
+
 // Hash //
 
 template <typename T, typename deg_type>
 size_t Polynomial<T, deg_type>::hash() const noexcept
 {
     std::hash<deg_type> dhash;
-    std::hash<T>        chash;
+    std::hash<T>        Thash;
     
     size_t res = 0;
     for (auto & dcp : coeffs)
     {
         auto fsthash = dhash(dcp.first);
-        res ^= fsthash << 8 * sizeof(size_t);
-        res ^= fsthash >> 8 * sizeof(size_t);
-        res ^= chash(dcp.second);
+        res ^= fsthash << (8 * sizeof(size_t));
+        res ^= fsthash >> (8 * sizeof(size_t));
+        res ^= Thash(dcp.second);
     }
     return res;
 }
