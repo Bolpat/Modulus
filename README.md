@@ -44,7 +44,7 @@ The bold elements are being worked on.
 - [x] create class for polynomials with coefficients of ℤ∕pℤ.
   - [x] make it a template class with type T an arbitrary template parameter.
   - [x] make it a template class with arbitrary type for degrees.
-  - [ ] **make class work.**
+  - [x] make class compile.
   - [ ] **debug class.**
   - [ ] optional⁴: (efficient) plug-in operator.
 - [x] create function to find all canoncal additive decomposoitions.
