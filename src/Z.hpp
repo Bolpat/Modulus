@@ -122,9 +122,10 @@ private:
     constexpr Z(unsigned n, bool) : x(n) {  }
 
 public:
-    constexpr Z(unsigned n = 0u) : x(n & 1u) {  }
-    constexpr Z(  signed n)      : x(n & 1 ) {  }
-
+    constexpr Z(unsigned n = 0u) : x(n & 1u)    {  }
+    constexpr Z(  signed n)      : x(n & 1 )    {  }
+    constexpr Z(bool     n)      : x(n ? 1 : 0) {  }
+    
     friend  constexpr   bool operator ==(Z z1, Z z2) { return z1.x == z2.x; }
     friend  constexpr   bool operator < (Z z1, Z z2) { return not z1.x and z2.x; }
     friend  constexpr   bool operator !=(Z z1, Z z2) { return z1.x != z2.x; }
