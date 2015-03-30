@@ -36,7 +36,7 @@ public:
     using iterator         = decltype(container.rbegin());
     using reverse_iterator = decltype(container.begin());
     
-    reverse_wrapper(Cont & cont) : container(cont) { }
+    reverse_wrapper(Container & cont) : container(cont) { }
     
     iterator begin() { return container.rbegin(); }
     iterator end()   { return container.rend(); }
