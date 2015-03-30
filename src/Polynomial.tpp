@@ -22,8 +22,6 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
-#include "reverse.hpp"
-
 // Polynomial<T> //
 namespace Modulus
 {
@@ -442,17 +440,10 @@ std::pair<ZPoly<2, deg_type>, ZPoly<2, deg_type>>
 ZPoly<2, deg_type>::divmod(ZPoly<2, deg_type> a, ZPoly<2, deg_type> const & b)
 {
     if (b.is_zero()) return std::make_pair(ZPoly<2, deg_type>(), ZPoly<2, deg_type>());
-    
-    using namespace std;
-    // a is a copy, b is a reference!
+
     ZPoly<2, deg_type> q;
     while (a.coeffs.size() >= b.coeffs.size())
     {
-        //~ cout << "    DEBUG(divmod): q  =  "; for (bool x : q.coeffs) cout << x; cout << endl;
-        //~ cout << "    DEBUG(divmod): a  =  "; for (bool x : Utility::reverse(a.coeffs)) cout << x; cout << endl;
-        //~ cout << "    DEBUG(divmod): b  =  "; for (bool x : Utility::reverse(b.coeffs)) cout << x; cout << endl;
-        //~ cout << endl;
-        
         auto v_xor_eq = [](vector<bool> & v, vector<bool> const & w)
             {
                 auto itv = v.rbegin(); // iterator
@@ -468,13 +459,7 @@ ZPoly<2, deg_type>::divmod(ZPoly<2, deg_type> a, ZPoly<2, deg_type> const & b)
         if (a.coeffs.back()) v_xor_eq(a.coeffs, b.coeffs);
         // a.back() is definitely false.
         a.coeffs.pop_back();
-        //while (not a.coeffs.empty() and not a.coeffs.back()) { a.coeffs.pop_back(); q.coeffs.push_back(false); }
     }
-    
-    //~ cout << "    DEBUG(divmod): q  =  "; for (bool x : q.coeffs) cout << x; cout << endl;
-    //~ cout << "    DEBUG(divmod): a  =  "; for (bool x : Utility::reverse(a.coeffs)) cout << x; cout << endl;
-    //~ cout << "    DEBUG(divmod): b  =  "; for (bool x : Utility::reverse(b.coeffs)) cout << x; cout << endl;
-    //~ cout << endl;
     
     std::reverse(q.coeffs.begin(), q.coeffs.end());
     while (not a.coeffs.empty() and not a.coeffs.back()) a.coeffs.pop_back();
