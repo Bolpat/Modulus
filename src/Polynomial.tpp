@@ -138,19 +138,26 @@ template <typename T, typename deg_type>
 std::pair<Polynomial<T, deg_type>, Polynomial<T, deg_type>>
 Polynomial<T, deg_type>::divmod(Polynomial<T, deg_type> a, Polynomial<T, deg_type> const & b)
 {
+    if (b.coeffs.empty()) return std::make_pair(Polynomial(), Polynomial());
+    
+    using namespace std;
     Polynomial<T, deg_type> q;
     while (deg(a) >= deg(b))
     {
         auto const d = deg(a) - deg(b);
-        auto const c = a.coeffs.at(deg(a)) / b.coeffs.at(deg(b));
+        auto const c = a.leading_coeff() / b.leading_coeff();
         q.coeffs[d] = c;
-        a -= b * c << d;
+        auto const subtr = b * c << d;
+        a -= subtr;
     }
     return std::make_pair(std::move(q), std::move(a));
 }
 
 template <typename T, typename deg_type> inline
-void Polynomial<T, deg_type>::divmod(Polynomial<T, deg_type> const & a, Polynomial<T, deg_type> const & b, Polynomial<T, deg_type> & q, Polynomial<T, deg_type> & r)
+void Polynomial<T, deg_type>::divmod(Polynomial<T, deg_type> const & a,
+                                     Polynomial<T, deg_type> const & b,
+                                     Polynomial<T, deg_type>       & q,
+                                     Polynomial<T, deg_type>       & r)
 {
     auto qr_pair = divmod(a, b);
     q = std::move(qr_pair.first);
@@ -432,40 +439,40 @@ template <typename deg_type>
 std::pair<ZPoly<2, deg_type>, ZPoly<2, deg_type>>
 ZPoly<2, deg_type>::divmod(ZPoly<2, deg_type> a, ZPoly<2, deg_type> const & b)
 {
+    if (b.is_zero()) return std::make_pair(ZPoly<2, deg_type>(), ZPoly<2, deg_type>());
+    
     using namespace std;
-    cout << "Enter divmod(a, b) -> (q, r)" << endl;
     // a is a copy, b is a reference!
-    std::vector<bool> q;
+    ZPoly<2, deg_type> q;
     while (a.coeffs.size() >= b.coeffs.size())
     {
-        cout << "divmod(a, b) -> (q, r): begin outer loop" << endl;
-        q.push_back(a.coeffs.back());
+        cout << "    DEBUG(divmod): a  =  " << a << endl;
+        std::reverse(q.coeffs.begin(), q.coeffs.end());
+        cout << "    DEBUG(divmod): q  =  " << q << endl;
+        std::reverse(q.coeffs.begin(), q.coeffs.end());
+        q.coeffs.push_back(a.coeffs.back());
         if (a.coeffs.back())
         {
-            cout << "divmod(a, b) -> (q, r): begin if" << endl;
             auto itv = a.coeffs.rbegin(); // iterator
             auto itw = b.coeffs.rbegin(); // const_iterator
-            do { *itv = (*itv != *itw); ++itv; cout << "divmod(a, b) -> (q, r): copying" << endl; } while (++itw != b.coeffs.rend());
+            do { *itv = (*itv != *itw); ++itv; } while (++itw != b.coeffs.rend());
         }
-        cout << "divmod(a, b) -> (q, r): after if" << endl;
+        // a.back() is definitely false.
+        cout << "    DEBUG(divmod): a.back() is false?  " << (a.coeffs.back() ? "no" : "yes") << endl;
         a.coeffs.pop_back();
+        while (not a.coeffs.empty() and not a.coeffs.back()) { a.coeffs.pop_back(); q.coeffs.push_back(false); }
     }
-    cout << "divmod(a, b) -> (q, r): after loop" << endl;
-    std::reverse(q.begin(), q.end());
-    cout << "divmod(a, b) -> (q, r): returning result" << endl;
-    return std::make_pair( ZPoly<2, deg_type>(std::move(q)), std::move(a) );
+    std::reverse(q.coeffs.begin(), q.coeffs.end());
+
+    return std::make_pair( std::move(q), std::move(a) );
 }
 
 template <typename deg_type> inline
 void ZPoly<2, deg_type>::divmod(ZPoly<2, deg_type> const & a, ZPoly<2, deg_type> const & b, ZPoly<2, deg_type> & q, ZPoly<2, deg_type> & r)
 {
-    using namespace std;
-    cout << "Enter divmod(a, b, q, r)." << endl;
     auto qr_pair = divmod(a, b);
-    cout << "divmod(a, b, q, r): got result." << endl;
     q = std::move(qr_pair.first);
     r = std::move(qr_pair.second);
-    cout << "divmod(a, b, q, r): wrote result." << endl;
 }
 
 // IO streams //

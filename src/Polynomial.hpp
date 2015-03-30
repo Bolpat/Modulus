@@ -56,12 +56,35 @@ template <typename deg_type>    ZPoly<2, deg_type>  operator *  (ZPoly<2, deg_ty
 template <typename deg_type>    std::ostream &      operator << (std::ostream & os, ZPoly<2, deg_type>  const & p);
 template <typename deg_type>    std::istream &      operator >> (std::istream & is, ZPoly<2, deg_type>        & p);
 
-}
 
-
-
-namespace Modulus
+template <typename T, typename deg_type = size_t>
+class Eks
 {
+    deg_type deg;
+    constexpr Eks(deg_type deg) : deg(deg) {  }
+    
+public:
+    constexpr Eks() : deg(1) { }
+    
+    operator Polynomial<T, deg_type>() const noexcept
+    {
+        return Polynomial<T, deg_type>(T(1), deg);
+    }
+    
+    friend constexpr deg_type deg(Eks e) { return e.deg; }
+    
+    constexpr Eks operator ^ (deg_type d) const { return Eks(deg * d); }
+    constexpr Eks operator * (Eks      b) const { return Eks(deg + b.deg); }
+
+    Polynomial<T, deg_type> operator-() const { return -Polynomial<T, deg_type>(*this); }
+    
+    friend Polynomial<T, deg_type> operator+(Eks a, T const & b) { return static_cast<Polynomial<T, deg_type>>(a) + Polynomial<T, deg_type>(b); }
+    friend Polynomial<T, deg_type> operator-(Eks a, T const & b) { return static_cast<Polynomial<T, deg_type>>(a) - Polynomial<T, deg_type>(b); }
+    
+    friend Polynomial<T, deg_type> operator+(Eks a, Eks b) { return static_cast<Polynomial<T, deg_type>>(a) + static_cast<Polynomial<T, deg_type>>(b); }
+    friend Polynomial<T, deg_type> operator-(Eks a, Eks b) { return static_cast<Polynomial<T, deg_type>>(a) - static_cast<Polynomial<T, deg_type>>(b); }
+};
+
 
 template <typename T, typename deg_type>
 class Polynomial // non-literal type (non-trivial destructor)
@@ -73,6 +96,8 @@ private:
     std::map<deg_type, T> coeffs;
     
 public:
+    static constexpr Eks<T, deg_type> X = Eks<T, deg_type>();
+
     Polynomial() { }
     Polynomial(T const &, deg_type deg = 0);
     
@@ -81,6 +106,9 @@ public:
     friend  deg_type        deg<>(Polynomial const &);
             Polynomial &    with_monic(deg_type dg = 0) &;
     
+            T               leading_coeff() const { return coeffs.rbegin()->second; }
+    
+            bool is_zero() const                                          { return coeffs.empty(); }
     friend  bool operator == (Polynomial const & p, Polynomial const & q) { return p.coeffs == q.coeffs; }
     friend  bool operator != (Polynomial const & p, Polynomial const & q) { return p.coeffs != q.coeffs; }
     friend  bool operator <  (Polynomial const & p, Polynomial const & q) { return p.coeffs <  q.coeffs; }
@@ -97,10 +125,13 @@ public:
     friend  Polynomial      operator +      (Polynomial p) { return p; }
             Polynomial      operator -      () const;
     
+    friend  Polynomial      operator +      (T          const & t,   Polynomial         q) { return q += Polynomial(t); }
+    friend  Polynomial      operator +      (Polynomial         p,   T          const & t) { return p += Polynomial(t); }
+    friend  Polynomial      operator -      (T          const & t,   Polynomial         q) { return q -= Polynomial(t); }
+    friend  Polynomial      operator -      (Polynomial         p,   T          const & t) { return p -= Polynomial(t); }
     friend  Polynomial      operator *      (T          const & t,   Polynomial         q) { return q *= t; }
     friend  Polynomial      operator *      (Polynomial         p,   T          const & t) { return p *= t; }
     
-    // Auch wenn es nicht nötig ist, warum funtioniert er nicht??
     friend  Polynomial      operator + <>   (Polynomial const & p,   Polynomial const & q);
     friend  Polynomial      operator * <>   (Polynomial const & p,   Polynomial const & q);
     friend  Polynomial      operator -      (Polynomial const & p,   Polynomial const & q) { return p + (-q); }
@@ -124,7 +155,6 @@ public:
             size_t       hash() const noexcept;
 };
 
-
 // Represents a Polynomial of Z<2> using vector<bool>.
 // Provides usual arithmetic, equality comparison, plugging in.
 // Maybe like usual Polynomial class with std::set<deg_type> instead of std::vector<bool>.
@@ -142,6 +172,8 @@ private:
     Polynomial & add_with_offset(Polynomial const & p, size_t offset);
 
 public:
+    static constexpr Eks<Z<2>, deg_type> X = Eks<Z<2>, deg_type>();
+
     Polynomial(Z<2> const & z = Z<2>(), deg_type deg = 0);
 
     static  Polynomial      fromCoeffVector(std::vector<Z<2>> const & coeffs);
@@ -149,6 +181,7 @@ public:
     friend  deg_type        deg(Polynomial const & p)    { return p.coeffs.empty() ? 0 : p.coeffs.size() - 1; }
             Polynomial &    with_monic(deg_type dg = 0) &;
 
+            bool            is_zero() const                                                 { return coeffs.empty(); }
     friend  bool            operator ==     (Polynomial const & p, Polynomial const & q)    { return p.coeffs == q.coeffs; }
     friend  bool            operator !=     (Polynomial const & p, Polynomial const & q)    { return p.coeffs != q.coeffs; }
     friend  bool            operator <      (Polynomial const & p, Polynomial const & q)    { return p.coeffs <  q.coeffs; }
@@ -164,6 +197,10 @@ public:
             Polynomial      operator +      () const { return Polynomial(*this); }
             Polynomial      operator -      () const { return Polynomial(*this); }
 
+    friend  Polynomial      operator +      (Z<2>       const & t,   Polynomial         q) { return q += Polynomial(t); }
+    friend  Polynomial      operator +      (Polynomial         p,   Z<2>       const & t) { return p += Polynomial(t); }
+    friend  Polynomial      operator -      (Z<2>       const & t,   Polynomial         q) { return q -= Polynomial(t); }
+    friend  Polynomial      operator -      (Polynomial         p,   Z<2>       const & t) { return p -= Polynomial(t); }
     friend  Polynomial      operator *      (Polynomial const & p, Z<2> const & t) { return t == Z<2>(0) ? Polynomial() : p; }
     friend  Polynomial      operator *      (Z<2> const & t, Polynomial const & p) { return p.operator*(t); }
     
@@ -187,41 +224,6 @@ public:
             size_t hash() const noexcept { return std::hash<std::vector<bool>>() (coeffs); }
 };
 
-namespace Eks
-{
-// The namespace is made to minimize errors ocurring for accidentally using X.
-
-/// If you need default X (size_t) to easily type polynomials in code user-friendly, it is recommanded to do like this:
-///     using Modulus::Eks::X;
-/// For your own your_deg_type, use
-///     constexpr Modulus::Eks::Eks<your_deg_type> X;
-/// Remember you need parenthesis around 'powers'.
-template<typename deg_type = size_t>
-class Eks
-{
-    static_assert(std::numeric_limits<deg_type>::is_integer and not std::numeric_limits<deg_type>::is_signed,
-            "deg_type must be an unsigned integer.");
-    
-    deg_type deg;
-    constexpr Eks(deg_type deg) : deg(deg) {  }
-    
-public:
-    constexpr Eks() : deg(1) { }
-    
-    template <typename T>
-    operator Polynomial<T, deg_type>() const noexcept
-    {
-        return Polynomial<T, deg_type>(T(1), deg);
-    }
-    
-    constexpr Eks   operator ^ (deg_type d) const { return Eks(deg + d); }
-    constexpr Eks & operator ^=(deg_type d) const { deg += d; return *this; }
-};
-
-constexpr Eks<> X;
-
-} // namespace Eks
-
 } // namespace Modulus
 
 namespace std
@@ -238,4 +240,4 @@ struct hash<Modulus::Polynomial<T, deg_type>>
 
 
 // As polynomial is a temlate class, it is necessary to include the cpp-file as well.
-#include "Polynomial.cpp"
+#include "Polynomial.tpp"
