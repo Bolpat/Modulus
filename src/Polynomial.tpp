@@ -22,6 +22,8 @@
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
+#include "reverse.hpp"
+
 // Polynomial<T> //
 namespace Modulus
 {
@@ -446,24 +448,36 @@ ZPoly<2, deg_type>::divmod(ZPoly<2, deg_type> a, ZPoly<2, deg_type> const & b)
     ZPoly<2, deg_type> q;
     while (a.coeffs.size() >= b.coeffs.size())
     {
-        cout << "    DEBUG(divmod): a  =  " << a << endl;
-        std::reverse(q.coeffs.begin(), q.coeffs.end());
-        cout << "    DEBUG(divmod): q  =  " << q << endl;
-        std::reverse(q.coeffs.begin(), q.coeffs.end());
+        //~ cout << "    DEBUG(divmod): q  =  "; for (bool x : q.coeffs) cout << x; cout << endl;
+        //~ cout << "    DEBUG(divmod): a  =  "; for (bool x : Utility::reverse(a.coeffs)) cout << x; cout << endl;
+        //~ cout << "    DEBUG(divmod): b  =  "; for (bool x : Utility::reverse(b.coeffs)) cout << x; cout << endl;
+        //~ cout << endl;
+        
+        auto v_xor_eq = [](vector<bool> & v, vector<bool> const & w)
+            {
+                auto itv = v.rbegin(); // iterator
+                auto itw = w.rbegin(); // const_iterator
+                do
+                {
+                    if (*itw) itv->flip();
+                }
+                while (++itv, ++itw != w.rend());
+            };
+        
         q.coeffs.push_back(a.coeffs.back());
-        if (a.coeffs.back())
-        {
-            auto itv = a.coeffs.rbegin(); // iterator
-            auto itw = b.coeffs.rbegin(); // const_iterator
-            do { *itv = (*itv != *itw); ++itv; } while (++itw != b.coeffs.rend());
-        }
+        if (a.coeffs.back()) v_xor_eq(a.coeffs, b.coeffs);
         // a.back() is definitely false.
-        cout << "    DEBUG(divmod): a.back() is false?  " << (a.coeffs.back() ? "no" : "yes") << endl;
         a.coeffs.pop_back();
-        while (not a.coeffs.empty() and not a.coeffs.back()) { a.coeffs.pop_back(); q.coeffs.push_back(false); }
+        //while (not a.coeffs.empty() and not a.coeffs.back()) { a.coeffs.pop_back(); q.coeffs.push_back(false); }
     }
+    
+    //~ cout << "    DEBUG(divmod): q  =  "; for (bool x : q.coeffs) cout << x; cout << endl;
+    //~ cout << "    DEBUG(divmod): a  =  "; for (bool x : Utility::reverse(a.coeffs)) cout << x; cout << endl;
+    //~ cout << "    DEBUG(divmod): b  =  "; for (bool x : Utility::reverse(b.coeffs)) cout << x; cout << endl;
+    //~ cout << endl;
+    
     std::reverse(q.coeffs.begin(), q.coeffs.end());
-
+    while (not a.coeffs.empty() and not a.coeffs.back()) a.coeffs.pop_back();
     return std::make_pair( std::move(q), std::move(a) );
 }
 
