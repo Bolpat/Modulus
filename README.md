@@ -1,12 +1,12 @@
 # Modulus
-Program to list or test for irreducible polynomials of (ℤ∕pℤ)[x], where p is a prime number.
+Program to list or test for irreducible polynomials of (ℤ/pℤ)[x], where p is a prime number.
 
 The program is under development. Do not expect anything, not even compiling.
 Before the 'final' version, you can find bold elements in the TODO.
 
 ## Strategy
 ### Thoughts
-Create class for polynomials over ℤ∕pℤ. This class must provide efficient creation of instances, addition and multiplication.
+Create class for polynomials over ℤ/pℤ. This class must provide efficient creation of instances, addition and multiplication.
 Everything else is not that important.
 There will be some degree n given, up to which the program has to find the irreducible polynomails.
 Therefor at first generate all¹ polynomials for each degree up to n.
@@ -18,12 +18,12 @@ So build the cross-product of these sets, and for each product polynomial, remov
 
 Like that, the sieved list only contains irreducible polynomials, and no irreducible polynomials will accidently be removed.
 
-¹ Because ℤ∕pℤ is a finite set, there is a finite number of polynomials of any degree.
+¹ Because ℤ/pℤ is a finite set, there is a finite number of polynomials of any degree.
 
 ² An additive decomposition of a number x is a list of positive numbers that sum up to x. There is only a finite number of decompositions for any number.
 
 ### Examine and Imporove the Strategy
-* Do not generate all additive decompositions. (ℤ∕pℤ)[x]'s multiplication is commutative, so two decompositions work equal if they just have different ordering. Pick one canonical representative of each kind.
+* Do not generate all additive decompositions. (ℤ/pℤ)[x]'s multiplication is commutative, so two decompositions work equal if they just have different ordering. Pick one canonical representative of each kind.
 * Don't create the same polynomial more than once. (TODO: Explain how...)
 * The decompositions are independent, so there is potential for parallel execution.
 
@@ -36,16 +36,16 @@ After finishing there maybe will be an extra branch or code package to be compil
 
 ## TODO
 The bold elements are being worked on.
-- [x] create class for elements of ℤ∕pℤ.
+- [x] create class for elements of ℤ/pℤ.
   - [x] make it a template class with p template parameter.
   - [x] Behaves as expected even if p is not prime.
   - [x] debug class.
   - [ ] optional⁴: Throw exception for division by zero divisor. (Division will not be needed)
-- [x] create class for polynomials with coefficients of ℤ∕pℤ.
+- [x] create class for polynomials with coefficients of ℤ/pℤ.
   - [x] make it a template class with type T an arbitrary template parameter.
   - [x] make it a template class with arbitrary type for degrees.
   - [x] make class compile.
-  - [ ] **debug class.**
+  - [ ] optional⁴: debug (ℤ/2ℤ)[x]'s `divmod`.
   - [ ] optional⁴: (efficient) plug-in operator.
 - [x] create function to find all canoncal additive decomposoitions.
 - [x] create function to generate the polynomials.
@@ -63,14 +63,14 @@ The bold elements are being worked on.
   - [ ] style of output; e.&nbsp;g. human readable, CSV etc.
   - [ ] read the input from file, if the user wants that.
   - [ ] feedback of file input; e.&nbsp;g. for ill-formed input, ignore or message or abort?
- 
+
 ⁴ This feature is not needed for sieveing polynomials, but maybe useful for someone using the files for other stuff.
 
 ## Giudelines
 These guidelines are not forced, but a guide to make code readable.
 * Spaces are explicitely but not exclusively present
     * after commas,
-    * after semicolons,
+    * after semicolons except at end of line, doubled between full statements,
     * around binary arithmetric/bit operators.
 * Spaces are absent
     * before commas,
