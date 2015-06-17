@@ -33,7 +33,7 @@
 #include <map>
 
 #include <algorithm>
- 
+
 namespace Modulus
 {
 
@@ -50,10 +50,12 @@ using std::ifstream;
 using std::vector;
 using std::map;
 
-int main2(int argc, char** argv, ostream & out);
+int main2(int argc, char** argv, std::istream & in);
+int main3(int argc, char** argv, std::ostream & in, std::ostream & out);
 int main (int argc, char** argv)
 {
-    ++argv;
+    if (argv++ == nullptr) return 0;
+    
     if (*argv == nullptr or
         string("-?")     == *argv or
         string("-h")     == *argv or
@@ -62,21 +64,37 @@ int main (int argc, char** argv)
         cout << HELP_TEXT << endl;
         return 0;
     }
+    // *argv != nullptr here.
     
-    if (string("-o")       == *argv or
-        string("--file")   == *argv or
-        string("--output") == *argv)
-    {
-        if (*(++argv) == nullptr) ERROR("parameter 'file' missing.");
-        ofstream out(*argv, ofstream::trunc);
-        if (out.good()) return main2(argc, ++argv, out);
-        ERROR("cannot open/write file.");
-    }
+    //~ if (string("-i")      == *argv or
+        //~ string("--input") == *argv)
+    //~ {
+        //~ if (*++argv == nullptr) ERROR("parameter 'file' missing.");
+        //~ 
+        //~ ifstream in(*argv);
+        //~ if (in.good()) return main2(argc, ++argv, in);
+        //~ ERROR("input: cannot open/read file.");
+    //~ }
     
-    return main2(argc, argv, cout);
+    return main2(argc, argv, cin);
 }
 
-int main2(int argc, char** argv, ostream & out)
+int main2(int argc, char ** argv, std::istream & in)
+{
+    if (string("-o")       == *argv or
+        string("--output") == *argv)
+    {
+        if (*++argv == nullptr) ERROR("parameter 'file' missing.");
+        
+        ofstream out(*argv, ofstream::trunc);
+        if (out.good()) return main3(argc, ++argv, in, out);
+        ERROR("output: cannot open/write file.");
+    }
+    
+    return main3(argc, argv, in, cout);
+}
+
+int main3(int argc, char** argv, std::ostream & in, std::ostream & out)
 {
     const vector<unsigned> primes = { 2, 3, 5, 7, 11, 13, 17, 19 };
 
@@ -112,6 +130,7 @@ int main2(int argc, char** argv, ostream & out)
         cout << "Nothing to do." << endl;
         return 0;
     }
+    
     if (string("-l")     == *argv or
         string("--list") == *argv)
     {

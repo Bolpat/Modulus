@@ -86,7 +86,7 @@ public:
 };
 
 
-template <typename T, typename deg_type>
+template <typename T, typename deg_type> /* default deg_type = size_t*/
 class Polynomial // non-literal type (non-trivial destructor)
 {
     static_assert(std::numeric_limits<deg_type>::is_integer and not std::numeric_limits<deg_type>::is_signed,
@@ -210,7 +210,7 @@ public:
     friend  Polynomial      operator /      (Polynomial const & a, Polynomial const & b) { return divmod(a, b).first; }
     friend  Polynomial      operator %      (Polynomial const & a, Polynomial const & b) { return divmod(a, b).second; }
     
-    Polynomial &            operator *=     (Z<2> const & t)          { return t == Z<2>(0) ? *this = Polynomial() : *this; }
+            Polynomial &    operator *=     (Z<2> const & t)       { return t == Z<2>(0) ? *this = Polynomial() : *this; }
     
             Polynomial &    operator +=     (Polynomial const & p) { return add_with_offset(p, 0); }
             Polynomial &    operator -=     (Polynomial const & p) { return *this += p; }
@@ -239,5 +239,5 @@ struct hash<Modulus::Polynomial<T, deg_type>>
 } // namespace std
 
 
-// As polynomial is a temlate class, it is necessary to include the cpp-file as well.
+// As polynomial is a temlate class, it is necessary to include the tpp-file as well.
 #include "Polynomial.tpp"

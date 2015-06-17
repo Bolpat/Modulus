@@ -18,10 +18,6 @@
  * MA 02110-1301, USA.
  */
 
-// IMPORTANT NOTE: DO NOT INCLUDE THIS HEADER! ONLY EXCEPTION AT THE END OF Polynomial.hpp //
-/////////////////////////////////////////////////////////////////////////////////////////////
-
-
 // Polynomial<T> //
 namespace Modulus
 {
@@ -444,7 +440,7 @@ ZPoly<2, deg_type>::divmod(ZPoly<2, deg_type> a, ZPoly<2, deg_type> const & b)
     ZPoly<2, deg_type> q;
     while (a.coeffs.size() >= b.coeffs.size())
     {
-        auto v_xor_eq = [](vector<bool> & v, vector<bool> const & w)
+        auto v_xor_eq = [](std::vector<bool> & v, std::vector<bool> const & w)
             {
                 auto itv = v.rbegin(); // iterator
                 auto itw = w.rbegin(); // const_iterator

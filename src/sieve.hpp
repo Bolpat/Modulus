@@ -95,7 +95,7 @@ vector<vector<unsigned>> decomp(unsigned n)
 
 
 
-// Calculates and prints the irreducible Polynomials of (Z/pZ)[x] with degree up to n.
+// Calculates the irreducible Polynomials of (Z/pZ)[x] with degree up to n.
 // Return type is vector<list<KPoly>>.
 template<unsigned p>
 auto getPolynomials(unsigned n)
@@ -236,7 +236,7 @@ auto getPolynomialsDecomposition(unsigned n)
 
 
 template<unsigned p>
-void printPolynomials(unsigned n, ostream & out)
+void printPolynomials(unsigned n, std::ostream & out)
 {
     auto polys = getPolynomials<p>(n + 1);
     unsigned total_count = 0;
@@ -253,7 +253,7 @@ void printPolynomials(unsigned n, ostream & out)
 
 
 template <unsigned p>
-void testPolynomials(char** argv, ostream & out)
+void testPolynomials(char** argv, std::ostream & out)
 {
     using KPoly = Polynomial<Z<p>>;
     

@@ -66,9 +66,9 @@ string map_string(Map const & m,
 // Increments the vector of iterators in reverse p-adic style.
 // On overflow (all iterators match their corresponding beginning) the function returns false, in any other case the result is true.
 template<typename Iterator>
-bool iterator_multi_increment(vector<Iterator>       & itrs,
-                              vector<Iterator> const & begs,
-                              vector<Iterator> const & ends)
+bool iterator_multi_increment(std::vector<Iterator>       & itrs,
+                              std::vector<Iterator> const & begs,
+                              std::vector<Iterator> const & ends)
 {
     for (unsigned i = 0; i < itrs.size(); ++i)
     {
@@ -82,9 +82,9 @@ bool iterator_multi_increment(vector<Iterator>       & itrs,
 
 // Increments the vector of iterators in reverse p-aric style, but respecting equalness of startpoints and commutativity of pointed values.
 template<typename Iterator>
-bool iterator_multi_increment_delta(vector<Iterator>       & itrs,
-                                    vector<Iterator> const & begs,
-                                    vector<Iterator> const & ends)
+bool iterator_multi_increment_delta(std::vector<Iterator>       & itrs,
+                                    std::vector<Iterator> const & begs,
+                                    std::vector<Iterator> const & ends)
 {
     // Here we use that the degree of the polynomials any of itrs is pointing at is fixed and that for i = 0, ..., n, deg(*(itrs[i])) is weakly increasing.
     // Therefore, and because multimplcation is commutative on polynomials over fields, we can take the previous iterator as beginning iff they iterate the same vector.
