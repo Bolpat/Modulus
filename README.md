@@ -24,11 +24,11 @@ Like that, the sieved list only contains irreducible polynomials, and no irreduc
 
 ### Examine and Imporove the Strategy
 * Do not generate all additive decompositions. (ℤ/pℤ)[x]'s multiplication is commutative, so two decompositions work equal if they just have different ordering. Pick one canonical representative of each kind.
-* Don't create the same polynomial more than once. (TODO: Explain how...)
-* The decompositions are independent, so there is potential for parallel execution.
+* Don't create the same polynomial more than once. This happens iff in the cross-product mentioned above, some set occours more than once. Then (because the set is always ran though the same order) we can simply ignore elements been ran over in the same run. It is very difficult to explain...
+* For a fiexed degree, the decompositions are independent, so there is potential for parallel execution.
 
 ## C++-Standard
-Modulus is explicitly developed in C++14, Clang (3.4 and later) supports all features with `-std=c++14`-flag³. All contributors are free to use them. For details, see http://clang.llvm.org/cxx_status.html . Today GCC does not implement all C++14 features.
+Modulus is explicitly developed in C++14, Clang (verion 3.4 and later) supports all features with `-std=c++14`-flag³. All contributors are free to use them. For details, see http://clang.llvm.org/cxx_status.html . Today GCC does not implement all C++14 features.
 
 After finishing there maybe will be an extra branch or code package to be compiled in lower standards.
 
