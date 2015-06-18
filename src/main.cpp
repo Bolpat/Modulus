@@ -192,6 +192,6 @@ int main3(int argc, char** argv, std::ostream & out)
         return 0;
     }
 
-    cerr << "Command line parameters could not be interpreted.";
+    cerr << "Command line parameters could not be interpreted." << endl;
     return 0;
 }
