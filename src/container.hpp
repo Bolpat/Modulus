@@ -35,14 +35,14 @@ string contnr_str(Contnr const & cs,
                   string const & separator = ", ")
 {
     ostringstream os;
-    os << '[';
+    //os << '[';
     if (not cs.empty())
     {
         auto it = cs.begin();
         os << *it;
         while (++it != cs.end()) os << separator << *it;
     }
-    os << ']';
+    //os << ']';
     return os.str();
 }
 
@@ -52,14 +52,14 @@ string map_string(Map const & m,
                   string const & separator2 = ", ")
 {
     ostringstream os;
-    os << '[';
+    //os << '[';
     if (not m.empty())
     {
         auto it = m.begin();
         os << '(' << it->first << separator1 << it->second << ')';
         while (++it != m.end()) os << separator2 << '(' << it->first << separator1 << it->second << ')';
     }
-    os << ']';
+    //os << ']';
     return os.str();
 }
 

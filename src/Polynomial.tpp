@@ -240,6 +240,7 @@ bool read_monom(std::istringstream & is, deg_type & deg, T & coeff)
     
     std::string inp;
     is >> inp;
+
     if (inp == "") is.setstate(ios_base::failbit);
     else if (inp[0] == 'x' or (inp.size() >= 2 and inp[0] == '+' and inp[1] == 'x')) // starts with "x" or "+x"
     {
@@ -283,12 +284,15 @@ bool read_monom(std::istringstream & is, deg_type & deg, T & coeff)
             if (iss_inp >> coeff) deg = 1;
             else                  is.setstate(ios_base::failbit);
         }
-        else if (x_pos + 1 != '^') is.setstate(ios_base::failbit);
         else
         {
-            inp[x_pos] = inp[x_pos + 1] = ' ';
-            istringstream iss_inp(inp);
-            if (not(iss_inp >> coeff >> deg)) is.setstate(ios_base::failbit);
+            if (inp[x_pos + 1] != '^') is.setstate(ios_base::failbit);
+            else
+            {
+                inp[x_pos] = inp[x_pos + 1] = ' ';
+                istringstream iss_inp(inp);
+                if (not(iss_inp >> coeff >> deg)) is.setstate(ios_base::failbit);
+            }
         }
     }
 
