@@ -50,8 +50,9 @@ The bold elements are being worked on.
 - [x] create function to find all canoncal additive decomposoitions.
 - [x] create function to generate the polynomials.
 - [x] create function to sieve.
-  - [ ] improve speed with better data structure, esp. use `set` or `unordered_set` instead of `list`.
-  - [ ] use parallel execution if speed improvement outweighs parallel overhead.
+  - [x] improve speed with better data structure, esp. use `set` or `unordered_set` instead of `list`.
+  - [x] make parallel execution possible.
+    - [ ] check if speed improvement outweighs parallel overhead
   - [x] split sieve in two functions:
     - [x] one to return the irreducible polynomials,
     - [x] one to return the map for each reducible polynomial to its decomposition.
