@@ -53,12 +53,13 @@ deg_type deg(Polynomial<T, deg_type> const & p)
 }
 
 template <typename T, typename deg_type>
-Polynomial<T, deg_type> &
-Polynomial<T, deg_type>::with_monic(deg_type dg) &
+Polynomial<T, deg_type>
+Polynomial<T, deg_type>::with_monic(deg_type dg) const
 {
-    const deg_type d = deg(*this) + 1;
-    coeffs[d] = T(1);
-    return *this;
+    Polynomial result = *this;
+    const deg_type d = std::max(deg(result) + 1, dg);
+    result.coeffs[d] = T(1);
+    return result;
 }
 
 
@@ -180,8 +181,13 @@ T         Polynomial<T, deg_type>::at(deg_type k)      &&
 
 // Helper functions //
 
-template<typename T> bool equal_minus_one(const T & value) { return value == T(-1); }
-template<>           bool equal_minus_one<unsigned long long>(unsigned long long const &) { return false; }
+template<typename T> bool equal_minus_one(const T & value)
+{
+    if (std::numeric_limits<T>::is_signed)
+        return value == T(-1);
+    else
+        return false;
+}
 
 template <typename T, typename deg_type>
 std::string monom_string(std::pair<deg_type, T> const & m)
@@ -213,7 +219,7 @@ template <typename T, typename deg_type>
 std::ostream &
     operator <<(std::ostream & o, Polynomial<T, deg_type> const & p)
 {
-    auto    it = p.coeffs.rbegin();
+    auto it = p.coeffs.rbegin();
     
     if (it == p.coeffs.rend()) return o << T();
     
@@ -294,8 +300,8 @@ void str_replace(std::string & subject, std::string const & search, std::string 
     size_t pos = 0;
     while ((pos = subject.find(search, pos)) != std::string::npos)
     {
-         subject.replace(pos, search.length(), replace);
-         pos += replace.length();
+        subject.replace(pos, search.length(), replace);
+        pos += replace.length();
     }
 }
 
@@ -336,8 +342,8 @@ size_t Polynomial<T, deg_type>::hash() const noexcept
     for (auto & dcp : coeffs)
     {
         auto fsthash = dhash(dcp.first);
-        res ^= fsthash << (8 * sizeof(size_t));
-        res ^= fsthash >> (8 * sizeof(size_t));
+        res ^= fsthash << (4 * sizeof(size_t));
+        res ^= fsthash >> (4 * sizeof(size_t));
         res ^= Thash(dcp.second);
     }
     return res;
@@ -375,12 +381,13 @@ ZPoly<2, deg_type>::fromCoeffVector(std::vector<Z<2>> const & coeffs)
 // Methods //
 
 template <typename deg_type>
-ZPoly<2, deg_type> &
-ZPoly<2, deg_type>::with_monic(deg_type dg) &
+ZPoly<2, deg_type>
+ZPoly<2, deg_type>::with_monic(deg_type dg) const
 {
-    if (dg < coeffs.size()) { coeffs.push_back(true); }
-    else                    { coeffs.resize(dg+1); coeffs[dg] = true; }
-    return *this;
+    ZPoly<2, deg_type> result = *this;
+    if (dg < result.coeffs.size()) { result.coeffs.push_back(true); }
+    else                           { result.coeffs.resize(dg+1); result.coeffs[dg] = true; }
+    return result;
 }
 
 // Shift //

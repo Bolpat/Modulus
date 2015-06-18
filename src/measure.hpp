@@ -1,7 +1,7 @@
 #pragma once
 
-#include <chrono>
 #include <iostream>
+#include <chrono>
 
 template<typename TimeT = milliseconds>
 struct measure

@@ -104,7 +104,7 @@ public:
     static  Polynomial      fromCoeffVector(std::vector<T> const & coeffs);
     
     friend  deg_type        deg<>(Polynomial const &);
-            Polynomial &    with_monic(deg_type dg = 0) &;
+            Polynomial      with_monic(deg_type dg = 0) const;
     
             T               leading_coeff() const { return coeffs.rbegin()->second; }
     
@@ -179,7 +179,7 @@ public:
     static  Polynomial      fromCoeffVector(std::vector<Z<2>> const & coeffs);
     
     friend  deg_type        deg(Polynomial const & p)    { return p.coeffs.empty() ? 0 : p.coeffs.size() - 1; }
-            Polynomial &    with_monic(deg_type dg = 0) &;
+            Polynomial      with_monic(deg_type dg = 0) const;
 
             bool            is_zero() const                                                 { return coeffs.empty(); }
     friend  bool            operator ==     (Polynomial const & p, Polynomial const & q)    { return p.coeffs == q.coeffs; }

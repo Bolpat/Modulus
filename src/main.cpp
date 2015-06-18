@@ -18,12 +18,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
  * MA 02110-1301, USA.
  */
- 
+
 #include "Z.hpp"
 #include "Polynomial.hpp"
 #include "container.hpp"
 #include "sieve.hpp"
 #include "helptext.hpp"
+
 
 #include <iostream>
 #include <fstream>
@@ -33,9 +34,6 @@
 #include <map>
 
 #include <algorithm>
-
-namespace Modulus
-{
 
 using std::cout;
 using std::cin;
@@ -50,9 +48,12 @@ using std::ifstream;
 using std::vector;
 using std::map;
 
-int main2(int argc, char** argv, std::istream & in);
-int main3(int argc, char** argv, std::ostream & in, std::ostream & out);
-int main (int argc, char** argv)
+using namespace Modulus;
+
+int main2(int argc, char ** argv);
+int main3(int argc, char ** argv, std::ostream & out);
+
+int main (int argc, char ** argv)
 {
     if (argv++ == nullptr) return 0;
     
@@ -66,20 +67,10 @@ int main (int argc, char** argv)
     }
     // *argv != nullptr here.
     
-    //~ if (string("-i")      == *argv or
-        //~ string("--input") == *argv)
-    //~ {
-        //~ if (*++argv == nullptr) ERROR("parameter 'file' missing.");
-        //~ 
-        //~ ifstream in(*argv);
-        //~ if (in.good()) return main2(argc, ++argv, in);
-        //~ ERROR("input: cannot open/read file.");
-    //~ }
-    
-    return main2(argc, argv, cin);
+    return main2(argc, argv);
 }
 
-int main2(int argc, char ** argv, std::istream & in)
+int main2(int argc, char ** argv)
 {
     if (string("-o")       == *argv or
         string("--output") == *argv)
@@ -87,14 +78,14 @@ int main2(int argc, char ** argv, std::istream & in)
         if (*++argv == nullptr) ERROR("parameter 'file' missing.");
         
         ofstream out(*argv, ofstream::trunc);
-        if (out.good()) return main3(argc, ++argv, in, out);
+        if (out.good()) return main3(argc, ++argv, out);
         ERROR("output: cannot open/write file.");
     }
     
-    return main3(argc, argv, in, cout);
+    return main3(argc, argv, cout);
 }
 
-int main3(int argc, char** argv, std::ostream & in, std::ostream & out)
+int main3(int argc, char** argv, std::ostream & out)
 {
     const vector<unsigned> primes = { 2, 3, 5, 7, 11, 13, 17, 19 };
 
@@ -103,26 +94,26 @@ int main3(int argc, char** argv, std::ostream & in, std::ostream & out)
     
     const map< unsigned, printPolynomials_t * > printPolys = 
         {
-            {  2, printPolynomials< 2> }//,
-            //~ {  3, printPolynomials< 3> },
-            //~ {  5, printPolynomials< 5> },
-            //~ {  7, printPolynomials< 7> },
-            //~ { 11, printPolynomials<11> },
-            //~ { 13, printPolynomials<13> },
-            //~ { 17, printPolynomials<17> },
-            //~ { 19, printPolynomials<19> }
+            {  2, printPolynomials< 2> },
+            {  3, printPolynomials< 3> },
+            {  5, printPolynomials< 5> },
+            {  7, printPolynomials< 7> },
+            { 11, printPolynomials<11> },
+            { 13, printPolynomials<13> },
+            { 17, printPolynomials<17> },
+            { 19, printPolynomials<19> }
         };
     
     const map < unsigned, testPolynomials_t * > testPolys = 
         {
-            {  2, testPolynomials< 2> }//,
-            //~ {  3, testPolynomials< 3> },
-            //~ {  5, testPolynomials< 5> },
-            //~ {  7, testPolynomials< 7> },
-            //~ { 11, testPolynomials<11> },
-            //~ { 13, testPolynomials<13> },
-            //~ { 17, testPolynomials<17> },
-            //~ { 19, testPolynomials<19> }
+            {  2, testPolynomials< 2> },
+            {  3, testPolynomials< 3> },
+            {  5, testPolynomials< 5> },
+            {  7, testPolynomials< 7> },
+            { 11, testPolynomials<11> },
+            { 13, testPolynomials<13> },
+            { 17, testPolynomials<17> },
+            { 19, testPolynomials<19> }
         };
     
     if (*argv == nullptr)
@@ -144,8 +135,7 @@ int main3(int argc, char** argv, std::ostream & in, std::ostream & out)
         {
             unsigned d;
             istringstream iss(inp);
-            iss >> d;
-            if (not iss) ERROR("positive integer required.");
+            if (not (iss >> d)) ERROR("positive integer required.");
             ds = vector<unsigned>(primes.size(), d);
         }
         else
@@ -205,5 +195,3 @@ int main3(int argc, char** argv, std::ostream & in, std::ostream & out)
     cerr << "Command line parameters could not be interpreted.";
     return 0;
 }
-
-} // namespace Modulus

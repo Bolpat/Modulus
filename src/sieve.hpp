@@ -24,9 +24,16 @@
 
 #include <vector>
 #include <list>
+#include <unordered_set>
 #include <unordered_map>
 
 #include <functional>
+
+#include <mutex>
+
+#include "Z.hpp"
+#include "Polynomial.hpp"
+#include "parallel.hpp"
 
 namespace Modulus
 {
@@ -43,6 +50,7 @@ using std::istringstream;
 
 using std::vector;
 using std::list;
+using std::unordered_set;
 using std::unordered_map;
 
 [[ noreturn ]]
@@ -119,6 +127,7 @@ auto getPolynomials(unsigned n)
         };
 
     polys[0].push_back(KPoly(1)); // Generate the polynomials of degree 0.
+    
     // coeffs is the vector of the NON-TRIVIAL coefficients the polynomial is being built of.
     // non-trivial in this case means, that the leading coefficient is not saved (zero coefficients indeed are).
     vector<K> coeffs(n-1), zerocoeffs(n-1);
@@ -132,6 +141,7 @@ auto getPolynomials(unsigned n)
 
     for (unsigned k = 2; k < n; ++k) // k is the degree of the polynomials we want to eliminate. (remember: max degree == n-1)
     {
+        // TODO: Make parallel.
         for (auto const & dc : decomp(k))
         {
             vector<Iterator> begs, itrs, ends;
@@ -154,8 +164,77 @@ auto getPolynomials(unsigned n)
             while (iterator_multi_increment_delta(itrs, begs, ends));
         }
     }
+
     return polys;
 }
+
+// Calculates the irreducible Polynomials of (Z/pZ)[x] with degree up to n.
+// Return type is vector<list<KPoly>>.
+template<unsigned p>
+auto getPolynomialsPARALLEL(unsigned n)
+{
+    using K     = Z<p>;
+    using KPoly = Polynomial<K>;
+
+    // For each degree there is a list of polynomials.
+    // First we generate all and then eliminate the reducible ones.
+    // The reducible polynomials have a factorization of lower degree irreducible polynomials.
+    // polys[d] will end up as the list with all the irreducible polynomials of degree d.
+    vector<unordered_set<KPoly>> polys(n);
+    using Iterator = decltype(polys.front().begin());
+
+    // Like a p-aric number increment. If the p-aric digits are interpreted as coeffs, we'll get all polynomials of the degree <= size of the vector.
+    // Note, that the "p-ary digits" have reverse order: The lower digits are first.
+    auto increment = [](vector<K> & coeffs) -> vector<K> &
+        {
+            for (auto & coeff : coeffs) if (++coeff != 0) break;
+            return coeffs;
+        };
+
+    polys[0].emplace(1); // Generate the polynomials of degree 0.
+    
+    // coeffs is the vector of the NON-TRIVIAL coefficients the polynomial is being built of.
+    // non-trivial in this case means, that the leading coefficient is not saved (zero coefficients indeed are).
+    vector<K> coeffs(n-1), zerocoeffs(n-1);
+    do
+    {
+        KPoly poly = KPoly::fromCoeffVector(coeffs);
+        for (unsigned d = deg(poly) + 1; d < n; ++d)
+            polys[d].insert(poly.with_monic(d));
+    }
+    while (increment(coeffs) != zerocoeffs);
+
+    for (unsigned k = 2; k < n; ++k) // k is the degree of the polynomials we want to eliminate. (remember: max degree == n-1)
+    {
+        std::mutex polys_mutex;
+        FOR_EACH_PAR (decomp(k), [&polys, &polys_mutex, k](auto & dc)
+        {
+            vector<Iterator> begs, itrs, ends;
+            for (unsigned d : dc)
+            {
+                begs.push_back(polys[d].begin());
+                itrs.push_back(polys[d].begin());
+                ends.push_back(polys[d].end()  );
+            }
+
+            do
+            {
+                KPoly prod(1);
+                for (auto & it : itrs) prod *= *it;
+                
+                polys_mutex.lock();
+                {
+                    polys[k].erase(prod);
+                }
+                polys_mutex.unlock();
+            }
+            while (iterator_multi_increment_delta(itrs, begs, ends));
+        });
+    }
+
+    return polys;
+}
+
 
 // For given n it returns the unordered_map which any polynomial of (Z/pZ)[x] which is reducible is mapped on the canonical decomposition
 // of irreducible polynomials. The return type is unordered_map<KPoly, vector<KPoly>>, but is unnecessary complex to read since KPoly is defined inside.
@@ -238,11 +317,11 @@ auto getPolynomialsDecomposition(unsigned n)
 template<unsigned p>
 void printPolynomials(unsigned n, std::ostream & out)
 {
-    auto polys = getPolynomials<p>(n + 1);
+    auto polys = getPolynomialsPARALLEL<p>(n + 1);
     unsigned total_count = 0;
     for (auto & deg_d_polys : polys) total_count += deg_d_polys.size();
 
-    out << "Irreducible Polynomials Modulus " << p << " of degree up to " << n << " (" << total_count << "):" << endl;
+    out << "Irreducible Polynomials modulo " << p << " of degree up to " << n << " (" << total_count << "):" << endl;
     for (unsigned d = 0; d < polys.size(); ++d)
     {
         out << "Degree " << d << " (" << polys[d].size() << "):" << endl;
