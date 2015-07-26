@@ -64,6 +64,7 @@ The bold elements are being worked on.
   - [ ] style of output; e.&nbsp;g. human readable, CSV etc.
   - [ ] read the input from file, if the user wants that.
   - [ ] feedback of file input; e.&nbsp;g. for ill-formed input, ignore or message or abort?
+- [ ] compiler option: _MAX_P (usage -D_MAX_P=p) for setting the maximum prime number available.
 
 ⁴ This feature is not needed for sieveing polynomials, but maybe useful for someone using the files for other stuff.
 
